@@ -12,12 +12,34 @@ const { dbConnection } = require('./database/config');
 // Config CORS en un Middleware
 app.use(cors());
 
-//Rutas
+//Lectura y parseo del Body de Requests
+app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.json({
-    ok: true,
-    msg: 'Hola Mundo'
+//Rutas
+const usuariosRoutes = require('./routes/usuarios');
+const authRoutes = require('./routes/auth');
+
+//Rutas Middlewares
+app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/auth', authRoutes);
+
+
+//Middleware para manejar errores
+app.use((err, req, res, next) => {
+  const { statusCode, message } = err;
+  const code = statusCode;
+
+  if (err.errores) {
+    const errors = err.errores;
+    return res.status(code).json({
+      ok: false,
+      errors
+    });
+  }
+
+  res.status(code).json({
+    ok: false,
+    error: message,
   });
 });
 
