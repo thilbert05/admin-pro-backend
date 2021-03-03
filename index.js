@@ -17,10 +17,18 @@ app.use(express.json());
 
 //Rutas
 const usuariosRoutes = require('./routes/usuarios');
+const hospitalesRoutes = require('./routes/hospitales');
+const medicosRoutes = require('./routes/medicos');
+const busquedaRoutes = require('./routes/busquedas');
+const uploadsRoutes = require('./routes/uploads');
 const authRoutes = require('./routes/auth');
 
 //Rutas Middlewares
 app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/hospitales', hospitalesRoutes);
+app.use('/api/medicos', medicosRoutes);
+app.use('/api/todo', busquedaRoutes);
+app.use('/api/upload', uploadsRoutes);
 app.use('/api/auth', authRoutes);
 
 
@@ -47,9 +55,9 @@ app.use((err, req, res, next) => {
 
 dbConnection()
   .then(value => {
-    console.log('Connected to MongoDB Atlas');
     app.listen(port, () => {
       console.log('Servidor corriendo en puerto ' + port);
+      console.log('Connected to MongoDB Atlas');
     });
   })
   .catch(reason => {

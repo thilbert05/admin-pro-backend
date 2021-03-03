@@ -6,20 +6,26 @@ const { generarJWT } = require('../helpers/jwt');
 
 const getUsuarios = async (req, res = response, next) => {
   try {
-    const usuarios = await Usuario.find({}, 'nombre email google role');
-
+    const desde = +req.query.desde || 0;
+    
+    const [usuarios, total] = await Promise.all([
+      Usuario.find({}, 'nombre email google role').skip(desde).limit(5),
+      Usuario.countDocuments(),
+    ]);
+    
     if (usuarios.length === 0) {
       const error = new Error();
       error.statusCode = 404;
       error.message =
-        'No se encontraron registros de usuarios en la base de datos';
+      'No se encontraron registros de usuarios en la base de datos';
       throw error;
     }
+    
     //Si se obtiene usuarios en la base de datos envía respuesta exitosa
     return res.json({
       ok: true,
       usuarios,
-      uid: req.uid
+      total
     });
 
   } catch (err) {
@@ -64,7 +70,7 @@ const postUsuarios = async (req, res = response, next) => {
       throw error;
     }
 
-    return res.json({
+    return res.status(201).json({
       ok: true,
       msg: 'Usuario creado con éxito',
       usuario,
