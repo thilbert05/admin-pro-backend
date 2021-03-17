@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -22,6 +23,11 @@ const medicosRoutes = require('./routes/medicos');
 const busquedaRoutes = require('./routes/busquedas');
 const uploadsRoutes = require('./routes/uploads');
 const authRoutes = require('./routes/auth');
+
+//Directorio publico
+const publicPath = path.resolve(__dirname, '.', 'public');
+console.log(publicPath);
+app.use(express.static(publicPath));
 
 //Rutas Middlewares
 app.use('/api/usuarios', usuariosRoutes);
