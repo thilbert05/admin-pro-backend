@@ -69,17 +69,79 @@ const crearHospital = async (req = request, res = response, next) => {
 };
 
 const actualizarHospital = async (req = request, res = response, next) => {
-  res.json({
-    ok: true,
-    msg: 'actualizarHospital'
-  });
+  const hospitalId = req.params.id;
+  const uid = req.uid;
+
+  try {
+    const hospitalDB = await Hospital.findById(hospitalId);
+
+    if (!hospitalDB) {
+      const error = new Error();
+      error.statusCode = 404;
+      error.message = 'No existe un registro de este hospital';
+      throw error;
+    }
+
+    const cambiosHospital = {
+      ...req.body,
+      usuario: uid
+    };
+
+    const hospitalActualizado = await Hospital.findByIdAndUpdate(hospitalId, cambiosHospital, {new: true});
+
+    res.json({
+      ok: true,
+      msg: 'El nombre del hospital se ha actualizado con éxito',
+      hospitalActualizado
+    });
+
+  } catch (err) {
+    console.log(err.message);
+    if (!err.statusCode) {
+      err.statusCode = 500;
+      err.message = "Contacte al administrador";
+    }
+    next(err);
+  }
 };
 
 const borrarHospital = async (req = request, res = response, next) => {
-  res.json({
-    ok: true,
-    msg: 'borrarHospital'
-  });
+  const hospitalId = req.params.id;
+
+  try {
+    const hospitalDB = await Hospital.findById(hospitalId);
+
+    if (!hospitalDB) {
+      const error = new Error();
+      error.statusCode = 404;
+      error.message = 'No existe un registro de este hospital';
+      throw error;
+    }
+
+    const hospitalRemovido = await Hospital.findByIdAndRemove(hospitalId);
+
+    if (!hospitalRemovido) {
+      const error = new Error();
+      error.statusCode = 404;
+      error.message = 'No se pudo borrar el hospital';
+      throw error;
+    }
+
+    res.json({
+      ok: true,
+      msg: 'El hospital ha sido borrado con éxito'
+    });
+    console.log('Hospital removido', hospitalRemovido);
+    
+  } catch (err) {
+    console.log(err.message);
+    if (!err.statusCode) {
+      err.statusCode = 500;
+      err.message = "Contacte al administrador";
+    }
+    next(err);
+  }
+  
 };
 
 module.exports = {
