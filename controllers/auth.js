@@ -95,12 +95,32 @@ const renewToken = async (req = request, res = response, next) => {
 
   //Generar el TOKEN del usuario
 
-  const token = await generarJWT(uid);
+  try {
+    const token = await generarJWT(uid);
   
-  res.json({
-    ok: true,
-    token
-  });
+  
+    const usuario = await Usuario.findById(uid);
+
+    if (!usuario) {
+      const error = new Error();
+      error.statusCode = 400;
+      error.message = "Usuario no econtrado"
+      throw error;
+    }
+    
+    res.json({
+      ok: true,
+      usuario,
+      token
+    });
+    
+  } catch (error) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+
 };
 
 module.exports = {

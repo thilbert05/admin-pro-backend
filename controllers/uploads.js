@@ -1,14 +1,24 @@
 const {request, response} = require('express');
 const path = require('path');
+const Usuario = require('../models/usuario');
 const fs = require('fs');
 const { v4: uuidv4, v4 } = require('uuid');
 const { actualizarImagen } = require('../helpers/actualizar-imagen');
 
-const fileUpload = (req = request, res = response, next) => {
+const fileUpload = async (req = request, res = response, next) => {
   const tipo = req.params.tipo;
   const id = req.params.id;
   try {
     //validar tipo
+    const usuario = await Usuario.findById(id);
+
+    if (!usuario) {
+      const error = new Error();
+      error.statusCode = 404;
+      error.message = 'No se encontró un usuario existente';
+      throw error;
+    }
+
     const tiposValidos = ['hospitales', 'medicos', 'usuarios'];
     
     if (!tiposValidos.includes(tipo)) {

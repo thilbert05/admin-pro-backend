@@ -117,7 +117,15 @@ const actualizarUsuario = async (req = request, res = response, next) => {
 
     }
 
-    campos.email = email;
+    if (!usuarioDB.google) {
+      campos.email = email;
+    } else if (usuarioDB.email !== email) {
+      const error = new Error();
+      error.statusCode = 400;
+      error.message = 'El usuario de google no puede cambiar su correo';
+      throw error;
+    }
+
     // delete campos.password;
     // delete campos.google;
 
