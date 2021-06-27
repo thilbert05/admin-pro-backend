@@ -4,10 +4,17 @@ const Hospital = require('../models/hospital');
 
 const getMedicos = async (req = request, res = response, next) => {
   try {
-    const medicos = await Medico.find({})
-      .populate('usuario', 'nombre img')
-      .populate('hospital', 'nombre img')
-      .exec();
+    const desde = +req.query.desde || 0;
+    const limit = +req.query.limit || 5;
+    const [medicos, totalMedicos] = await Promise.all([
+      Medico.find({})
+       .skip(desde)
+       .limit(limit)
+       .populate('usuario', 'nombre img')
+       .populate('hospital', 'nombre img')
+       .exec(),
+       Medico.countDocuments(),
+      ]);
   
     if (medicos.length <= 0) {
       const error = new Error();
@@ -18,7 +25,8 @@ const getMedicos = async (req = request, res = response, next) => {
 
     res.json({
       ok: true,
-      medicos
+      medicos,
+      totalMedicos
     });
 
   } catch (err) {
@@ -28,6 +36,36 @@ const getMedicos = async (req = request, res = response, next) => {
     next(err);
   }
   
+};
+
+const getMedico = async (req = request, res = response, next ) => {
+  const id = req.params.id;
+  
+  try {
+    const medicoDB = await Medico.findById(id)
+                            .populate('usuario', 'nombre img')
+                            .populate('hospital', 'nombre img')
+                            .exec();
+
+    if (!medicoDB) {
+      const error = new Error();
+      error.statusCode = 404;
+      error.message = "No se encontró un médico con este ID";
+      throw error;
+    }
+
+    res.json({
+      ok: true,
+      medico: medicoDB
+    });
+    
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+
 };
 
 const crearMedico = async (req = request, res = response, next) => {
@@ -152,6 +190,7 @@ const borrarMedico = async (req = request, res = response, next) => {
 
 module.exports = {
   getMedicos,
+  getMedico,
   crearMedico,
   actualizarMedico,
   borrarMedico

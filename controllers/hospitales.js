@@ -5,9 +5,16 @@ const Hospital = require('../models/hospital');
 
 const getHospitales = async (req = request, res = response, next) => {
   try {
-    const hospitales = await Hospital.find({})
-      .populate('usuario', 'nombre img')
-      .exec();
+    const desde = +req.query.desde;
+    const limit = +req.query.limit || 5;
+    const [hospitales, total] = await Promise.all([
+      Hospital.find({})
+        .skip(desde)
+        .limit(limit)
+        .populate('usuario', 'nombre img')
+        .exec(),
+      Hospital.countDocuments(),
+    ]); 
     
 
     if (hospitales.length <= 0) {
@@ -19,7 +26,8 @@ const getHospitales = async (req = request, res = response, next) => {
 
     res.json({
       ok: true,
-      hospitales
+      hospitales,
+      total
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -92,7 +100,7 @@ const actualizarHospital = async (req = request, res = response, next) => {
     res.json({
       ok: true,
       msg: 'El nombre del hospital se ha actualizado con éxito',
-      hospitalActualizado
+      hospital: hospitalActualizado
     });
 
   } catch (err) {

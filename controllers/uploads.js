@@ -4,19 +4,48 @@ const Usuario = require('../models/usuario');
 const fs = require('fs');
 const { v4: uuidv4, v4 } = require('uuid');
 const { actualizarImagen } = require('../helpers/actualizar-imagen');
+const Medico = require('../models/medico');
+const Hospital = require('../models/hospital');
 
 const fileUpload = async (req = request, res = response, next) => {
   const tipo = req.params.tipo;
   const id = req.params.id;
   try {
     //validar tipo
-    const usuario = await Usuario.findById(id);
+    switch (tipo) {
+      case 'usuario':
+        const usuario = await Usuario.findById(id);
 
-    if (!usuario) {
-      const error = new Error();
-      error.statusCode = 404;
-      error.message = 'No se encontró un usuario existente';
-      throw error;
+        if (!usuario) {
+          const error = new Error();
+          error.statusCode = 404;
+          error.message = 'No se encontró un usuario existente';
+          throw error;
+        }
+        break;
+      case 'hospitales':
+        const hospital = await Hospital.findById(id);
+
+        if (!hospital) {
+          const error = new Error();
+          error.statusCode = 404;
+          error.message = 'No se encontró un hospital existente';
+          throw error;
+        }
+        break;
+      case 'medicos':
+        const medico = await Medico.findById(id);
+
+        if (!medico) {
+          const error = new Error();
+          error.statusCode = 404;
+          error.message = 'No se encontró un medico existente';
+          throw error;
+        }
+        break;
+    
+      default:
+        break;
     }
 
     const tiposValidos = ['hospitales', 'medicos', 'usuarios'];
