@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start:dev": "nodemon index -e js, html",
-    "start": "node index"
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "",
