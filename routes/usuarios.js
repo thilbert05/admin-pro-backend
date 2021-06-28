@@ -6,12 +6,12 @@ const { validarCampos } = require('../middlewares/validar-campos');
 
 //Controladores
 const { getUsuarios, postUsuarios, actualizarUsuario, borrarUsuario } = require('../controllers/usuarios');
-const { isAuth } = require('../middlewares/isAuth');
+const { isAuth, isAdmin, isAdminOrSameUser } = require('../middlewares/isAuth');
 
 const router = Router();
 
 // GET USUARIOS
-router.get('/', [isAuth], getUsuarios);
+router.get('/', [isAuth, isAdmin], getUsuarios);
 
 //POST USUARIOS
 router.post(
@@ -30,6 +30,7 @@ router.put(
   '/:id',
   [
     isAuth,
+    isAdminOrSameUser,
     check('nombre', 'El nombre es requerido.').not().isEmpty(),
     check('role', 'El rol es requerido.').not().isEmpty(),
     check('email', 'El formato de email no es válido.').isEmail(),
@@ -40,6 +41,6 @@ router.put(
 
 // DELETE USUARIO
 
-router.delete('/:id', isAuth, borrarUsuario);
+router.delete('/:id', [isAuth, isAdmin], borrarUsuario);
 
 module.exports = router;
