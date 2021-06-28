@@ -2,6 +2,7 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
+const {request, response} = require('express');
 
 // crear el servidor de express
 const app = express();
@@ -36,9 +37,15 @@ app.use('/api/todo', busquedaRoutes);
 app.use('/api/upload', uploadsRoutes);
 app.use('/api/auth', authRoutes);
 
+// Ruta default (la última ruta)
+app.get('*', (req = request, res = rsponse) => {
+  const pathIndex = path.resolve(__dirname, 'public', 'index.html');
+  res.sendFile(pathIndex);
+});
+
 
 //Middleware para manejar errores
-app.use((err, req, res, next) => {
+app.use((err, req, res = response, next) => {
   const { statusCode, message } = err;
   const code = statusCode;
 
